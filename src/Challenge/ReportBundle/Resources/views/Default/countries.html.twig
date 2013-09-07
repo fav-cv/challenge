@@ -1,0 +1,26 @@
+{% extends "ChallengeReportBundle::sidebar.html.twig" %}
+
+{% block title %}
+Countries
+{% endblock %}
+
+{% block content %}
+
+    <h1>Country List</h1>
+    
+    <table class="table table-bordered">
+        <tr>
+            <th>Id</th>
+            <th>Code</th>
+            <th>Country</th>
+        </tr>
+        {% for country in countries %}
+            <tr>
+                <td>{{ country.countryId }}</td>
+                <td>{{ country.code }}</td>
+                <td>{{ country.country }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

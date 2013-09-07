@@ -28,18 +28,7 @@ class DefaultController extends Controller {
                 ->getRepository('ChallengeReportBundle:Country')
                 ->findAll();
         
-        $content = '';        
-        foreach ($countries as $country) {
-            $content .= $country->getCountryId() . 
-                    ' | ' . $country->getCode() . 
-                    ' | ' . $country->getCountry() . "\n";
-        }
-        
-        $response = new Response();
-        $response->setContent($content);
-        $response->headers->set('Content-Type', 'text/plain');
-        
-        return $response;
+        return array('countries' => $countries);
     }
 
 }
