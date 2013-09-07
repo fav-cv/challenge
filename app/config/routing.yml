@@ -1,0 +1,5 @@
+challenge_report:
+    resource: "@ChallengeReportBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
