@@ -4,7 +4,67 @@
 Countries
 {% endblock %}
 
+
 {% block content %}
+
+<h1>Country List</h1>
+{# total items count #}
+{#
+<div class="count">
+    {{ pagination.getTotalItemCount }}
+</div>
+#}
+<table class="table table-bordered table-striped">
+    {% set direction = '' %}
+    {% if pagination.params.direction is defined %}
+        {% set direction = pagination.params.direction %}
+    {% endif %}
+    <tr>
+        {# sorting of properties based on query components #}
+        <th>
+            {{ knp_pagination_sortable(pagination, 'Id', 'c.countryId') }}
+            {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                'field': 'c.countryId', 
+                'sorted': pagination.isSorted('c.countryId'),
+                'direction': direction
+            } %}
+        </th>
+        <th>
+            {{ knp_pagination_sortable(pagination, 'Code', 'c.code') }}
+            {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                'field': 'c.code', 
+                'sorted': pagination.isSorted('c.code'),
+                'direction': direction
+            } %}
+        </th>
+        <th>
+            {{ knp_pagination_sortable(pagination, 'Country', 'c.country') }}
+            {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                'field': 'c.country', 
+                'sorted': pagination.isSorted('c.country'),
+                'direction': direction
+            } %}
+        </th>
+    </tr>
+
+    {# table body #}
+    {% for country in pagination %}
+        <tr>
+            <td>{{ country.countryId }}</td>
+            <td>{{ country.code }}</td>
+            <td>{{ country.country }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{# display navigation #}
+<div class="navigation">
+    {{ knp_pagination_render(pagination) }}
+</div>
+
+{% endblock %}
+
+{# block content %}
 
     <h1>Country List</h1>
     
@@ -23,4 +83,4 @@ Countries
         {% endfor %}
     </table>
 
-{% endblock %}
+{% endblock #}

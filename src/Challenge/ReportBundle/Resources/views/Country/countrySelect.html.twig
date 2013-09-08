@@ -1,0 +1,9 @@
+
+<select name="country">
+    <option value="" {% if params.country is empty %} selected="selected" {% endif %}>Global</option>
+    {% for country in countries %}
+        <option value="{{country.code}}" {% if params.country == country.code %} selected="selected" {% endif %}>
+            {{country.country}}
+        </option>
+    {% endfor %}
+</select>

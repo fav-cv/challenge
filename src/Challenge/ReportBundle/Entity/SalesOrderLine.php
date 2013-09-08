@@ -38,9 +38,30 @@ class SalesOrderLine
     /**
      * @var float
      *
+     * @ORM\Column(name="unit_cost", type="decimal", nullable=false)
+     */
+    private $unitCost;
+
+    /**
+     * @var float
+     *
      * @ORM\Column(name="total_price", type="decimal", nullable=false)
      */
     private $totalPrice;
+    
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="total_cost", type="decimal", nullable=false)
+     */
+    private $totalCost;
+    
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="total_profit", type="decimal", nullable=false)
+     */
+    private $totalProfit;
 
     /**
      * @var \DateTime
@@ -217,5 +238,74 @@ class SalesOrderLine
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Set unitCost
+     *
+     * @param float $unitCost
+     * @return SalesOrderLine
+     */
+    public function setUnitCost($unitCost)
+    {
+        $this->unitCost = $unitCost;
+    
+        return $this;
+    }
+
+    /**
+     * Get unitCost
+     *
+     * @return float 
+     */
+    public function getUnitCost()
+    {
+        return $this->unitCost;
+    }
+
+    /**
+     * Set totalCost
+     *
+     * @param float $totalCost
+     * @return SalesOrderLine
+     */
+    public function setTotalCost($totalCost)
+    {
+        $this->totalCost = $totalCost;
+    
+        return $this;
+    }
+
+    /**
+     * Get totalCost
+     *
+     * @return float 
+     */
+    public function getTotalCost()
+    {
+        return $this->totalCost;
+    }
+
+    /**
+     * Set totalProfit
+     *
+     * @param float $totalProfit
+     * @return SalesOrderLine
+     */
+    public function setTotalProfit($totalProfit)
+    {
+        $this->totalProfit = $totalProfit;
+    
+        return $this;
+    }
+
+    /**
+     * Get totalProfit
+     *
+     * @return float 
+     */
+    public function getTotalProfit()
+    {
+        return $this->totalProfit;
     }
 }

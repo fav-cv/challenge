@@ -1,0 +1,91 @@
+{% extends "ChallengeReportBundle::sidebar.html.twig" %}
+
+
+{% block title %}
+Report
+{% endblock %}
+
+
+{% block sidebar %}
+<h1>Filters</h1>
+{# <div class="datepicker"></div> #}
+<form method="GET">
+    
+    {{ render(controller('ChallengeReportBundle:Country:countryList', {
+        'params': params
+    })) }}
+    
+    <input type="text" placeholder="Product" value="{{ params.product }}"/>
+    <div class="input-daterange input-append input-prepend" id="datepicker">
+        <input type="text" class="input-small" 
+               name="startDate" value="{{ params.startDate }}" 
+               placeholder="Start date"/>
+        <span class="add-on">to</span>
+        <input type="text" class="input-small" 
+               name="endDate" value="{{ params.endDate }}" 
+               placeholder="End date"/>
+    </div>
+    <a href="{{ path('report') }}">Clear</a>
+    <input type="submit" class="btn" value="Search"/>
+</form>
+
+{{ dump(params) }}
+
+{% endblock %}
+
+
+{% block stylesheets %}
+
+{% stylesheets '@ChallengeReportBundle/Resources/public/css/*' filter='cssrewrite' %}
+    <link rel="stylesheet" href="{{ asset_url }}" />
+{% endstylesheets %}
+    
+{% endblock %}
+
+
+{% block javascripts %}
+
+{% javascripts '@ChallengeReportBundle/Resources/public/js/*' %}
+    <script type="text/javascript" src="{{ asset_url }}"></script>
+{% endjavascripts %}
+    
+<script type="text/javascript">
+    $('#datepicker').datepicker({
+        format: '{{ params.jsformat }}'
+    });
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+    <h1>Results</h1>
+
+    {% if not results is empty %}
+        <table class="table table-bordered table-striped">
+            <tr>
+                {# sorting of properties based on query components #}
+                <th>Product</th>
+                <th>Units Sold</th>
+                <th>Total Cost</th>
+                <th>Total Revenue</th>
+                <th>Total Profit</th>
+            </tr>
+            {# table body #}
+            {% for row in results %}
+                <tr>
+                    <td>{{ row.product }}</td>
+                    <td>{{ row.unitsSold }}</td>
+                    <td>{{ row.totalCost|number_format(2) }}</td>
+                    <td>{{ row.totalRevenue|number_format(2) }}</td>
+                    <td>{{ row.totalProfit|number_format(2) }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            No results found
+        </div>
+    {% endif %}
+
+{% endblock %}

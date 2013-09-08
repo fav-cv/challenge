@@ -34,6 +34,13 @@ class SalesOrder
      * @ORM\Column(name="total_price", type="decimal", nullable=false)
      */
     private $totalPrice;
+    
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creation_date", type="datetime", nullable=false)
+     */
+    private $creationDate;
 
     /**
      * @var \Challenge\ReportBundle\Entity\Country
@@ -124,5 +131,28 @@ class SalesOrder
     public function getCountry()
     {
         return $this->country;
+    }
+
+    /**
+     * Set creationDate
+     *
+     * @param \DateTime $creationDate
+     * @return SalesOrder
+     */
+    public function setCreationDate($creationDate)
+    {
+        $this->creationDate = $creationDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get creationDate
+     *
+     * @return \DateTime 
+     */
+    public function getCreationDate()
+    {
+        return $this->creationDate;
     }
 }

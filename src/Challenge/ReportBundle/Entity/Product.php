@@ -35,6 +35,13 @@ class Product
      */
     private $unitPrice;
 
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="unit_cost", type="decimal", nullable=false)
+     */
+    private $unitCost;
+
 
 
     /**
@@ -91,5 +98,29 @@ class Product
     public function getUnitPrice()
     {
         return $this->unitPrice;
+    }
+
+
+    /**
+     * Set unitCost
+     *
+     * @param float $unitCost
+     * @return Product
+     */
+    public function setUnitCost($unitCost)
+    {
+        $this->unitCost = $unitCost;
+    
+        return $this;
+    }
+
+    /**
+     * Get unitCost
+     *
+     * @return float 
+     */
+    public function getUnitCost()
+    {
+        return $this->unitCost;
     }
 }
