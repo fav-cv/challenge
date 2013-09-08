@@ -11,11 +11,15 @@ Report
 {# <div class="datepicker"></div> #}
 <form method="GET">
     
+    <input type="hidden" name="sort" value="{{ params.sort }}" />
+    <input type="hidden" name="direction" value="{{ params.direction }}" />
+    
     {{ render(controller('ChallengeReportBundle:Country:countryList', {
         'params': params
     })) }}
     
-    <input type="text" placeholder="Product" value="{{ params.product }}"/>
+    <input type="text" name="product" placeholder="Product" value="{{ params.product }}"/>
+    
     <div class="input-daterange input-append input-prepend" id="datepicker">
         <input type="text" class="input-small" 
                name="startDate" value="{{ params.startDate }}" 
@@ -25,11 +29,10 @@ Report
                name="endDate" value="{{ params.endDate }}" 
                placeholder="End date"/>
     </div>
+    
     <a href="{{ path('report') }}">Clear</a>
     <input type="submit" class="btn" value="Search"/>
 </form>
-
-{{ dump(params) }}
 
 {% endblock %}
 
@@ -65,11 +68,61 @@ Report
         <table class="table table-bordered table-striped">
             <tr>
                 {# sorting of properties based on query components #}
-                <th>Product</th>
-                <th>Units Sold</th>
-                <th>Total Cost</th>
-                <th>Total Revenue</th>
-                <th>Total Profit</th>
+                <th>
+                    {% include 'ChallengeReportBundle:Misc:sort_link.html.twig' with {
+                        'field': 'product', 
+                        'label': 'Product'
+                    } %}
+                    {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                        'field': 'product', 
+                        'sorted': (params.sort == 'product'),
+                        'direction': params.direction
+                    } %}
+                </th>
+                <th>
+                    {% include 'ChallengeReportBundle:Misc:sort_link.html.twig' with {
+                        'field': 'unitsSold', 
+                        'label': 'Units Sold'
+                    } %}
+                    {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                        'field': 'unitsSold', 
+                        'sorted': (params.sort == 'unitsSold'),
+                        'direction': params.direction
+                    } %}
+                </th>
+                <th>
+                    {% include 'ChallengeReportBundle:Misc:sort_link.html.twig' with {
+                        'field': 'totalCost', 
+                        'label': 'Total cost'
+                    } %}
+                    {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                        'field': 'totalCost', 
+                        'sorted': (params.sort == 'totalCost'),
+                        'direction': params.direction
+                    } %}
+                </th>
+                <th>
+                    {% include 'ChallengeReportBundle:Misc:sort_link.html.twig' with {
+                        'field': 'totalRevenue', 
+                        'label': 'Total Revenue'
+                    } %}
+                    {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                        'field': 'totalRevenue', 
+                        'sorted': (params.sort == 'totalRevenue'),
+                        'direction': params.direction
+                    } %}
+                </th>
+                <th>
+                    {% include 'ChallengeReportBundle:Misc:sort_link.html.twig' with {
+                        'field': 'totalProfit', 
+                        'label': 'Total Profit'
+                    } %}
+                    {% include 'ChallengeReportBundle:Misc:sort_icon.html.twig' with {
+                        'field': 'totalProfit', 
+                        'sorted': (params.sort == 'totalProfit'),
+                        'direction': params.direction
+                    } %}
+                </th>
             </tr>
             {# table body #}
             {% for row in results %}
