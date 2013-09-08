@@ -30,7 +30,7 @@ Report
                placeholder="End date"/>
     </div>
     
-    <a href="{{ path('report') }}">Clear</a>
+    <a href="{{ path('report', { 'sort': params.sort, 'direction': params.direction }) }}">Clear</a>
     <input type="submit" class="btn" value="Search"/>
 </form>
 

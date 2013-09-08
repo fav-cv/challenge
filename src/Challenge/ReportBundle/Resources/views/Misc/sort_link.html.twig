@@ -1,2 +1,5 @@
-{% set link = params|merge({ 'sort': field, 'direction': ((params.sort == field) and (params.direction == 'asc'))?'desc':'asc' }) %}
+{% set link = params|merge({ 
+    'sort': field, 
+    'direction': ((params.sort == field) and (params.direction == 'asc'))?'desc':'asc' 
+}) %}
 <a href="{{ path('report', link) }}">{{ label }}</a>
