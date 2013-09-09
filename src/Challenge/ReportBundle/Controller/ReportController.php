@@ -92,7 +92,7 @@ class ReportController extends Controller {
                 
         $pager_params = array();
         $pager_params['page'] = $request->query->get('page', 1);
-        $pager_params['chunk'] = $request->query->get('chunk', 20);
+        $pager_params['chunk'] = $request->query->get('rows', 10);
 
         $misc_params = array();
         $misc_params['format'] = 'Y-m-d';

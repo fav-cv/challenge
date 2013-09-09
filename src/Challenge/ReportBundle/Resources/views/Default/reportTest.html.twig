@@ -44,21 +44,7 @@ Report
 {% stylesheets filter='cssrewrite' 
     'bundles/challengereport/css/*'  %}
     <link rel="stylesheet" href="{{ asset_url }}" />
-{% endstylesheets %}
-    
-<!-- Fix some inputs on pager jqgrid -->
-<style>
-        input.ui-pg-input,
-        select.ui-pg-selbox {
-            width: auto;
-        }
-        input.ui-pg-input {
-            padding: 3px;
-        }
-        select.ui-pg-selbox {            
-            padding: 0;
-        }
-</style>
+{% endstylesheets %}    
 {% endblock %}
 
 

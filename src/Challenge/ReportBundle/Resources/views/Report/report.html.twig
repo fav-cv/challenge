@@ -11,6 +11,7 @@ Report
 {# <div class="datepicker"></div> #}
 <form method="GET">
     
+    <input type="hidden" name="rows" value="{{ params.chunk }}"/>
     {{ render(controller('ChallengeReportBundle:Country:countryList', {
         'params': params
     })) }}
@@ -96,7 +97,8 @@ $(function () {
         viewrecords: true,
         gridview: true,
         autoencode: true,
-        caption: "Report",
+        caption: "Data",
+        height: "100%",
         // search cell value by name
         repeatitems: false
     }); 
@@ -107,7 +109,7 @@ $(function () {
 
 {% block content %}
 
-    <h1>jqGrid</h1>
+    <h1>Report</h1>
     <table id="list"><tr><td></td></tr></table> 
     <div id="pager"></div>
 
