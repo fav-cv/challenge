@@ -109,7 +109,7 @@ class ReportController extends Controller {
     }
 
     /**
-     * @Route("/report", name="report")
+     * @Route("/", name="report")
      * @Template()
      */
     public function reportAction(Request $request) {
