@@ -5,6 +5,11 @@ namespace Challenge\ReportBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Response;
+
+use Challenge\ReportBundle\Entity\Product;
+use Challenge\ReportBundle\Entity\SalesOrder;
+use Challenge\ReportBundle\Entity\SalesOrderLine;
 
 class LoaderController extends Controller {
 
