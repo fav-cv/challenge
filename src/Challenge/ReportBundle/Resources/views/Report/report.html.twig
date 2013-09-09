@@ -68,7 +68,9 @@ Report
     
 <script type="text/javascript">
     $('#datepicker').datepicker({
-        format: '{{ params.jsformat }}'
+        format: '{{ params.jsformat }}',
+        startDate: new Date({{ params.dates.minDate }} * 1000), 
+        endDate: new Date({{ params.dates.maxDate }} * 1000) 
     });
 </script>
 

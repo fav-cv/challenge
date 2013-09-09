@@ -13,15 +13,10 @@ use Challenge\ReportBundle\Entity\SalesOrderLine;
 
 class LoaderController extends Controller {
 
-    private function saveAndDetach($em, $entity) {
-
-        $em->persist($entity);
-        $em->flush();
-
-        $em->detach($entity);
-    }
-
     private function generateProducts($size, $em) {
+        
+        $batchSize = 50;
+        
         for ($index = 0; $index < $size; $index++) {
 
             $product = new Product();
@@ -29,7 +24,11 @@ class LoaderController extends Controller {
             $product->setUnitPrice(100 + $index);
             $product->setUnitCost(110 + $index);
 
-            $this->saveAndDetach($em, $product);
+            $em->persist($product);
+            if (($index % $batchSize) == 0) {
+                $em->flush();
+                $em->clear(); // Detaches all objects from Doctrine!
+            }
         }
     }
 
@@ -52,6 +51,8 @@ class LoaderController extends Controller {
 
     private function generateOrders($size, $em) {
         
+        $batchSize = 20;
+        
         for ($index = 0; $index < $size; $index++) {
 
             $date = new \DateTime();
@@ -69,14 +70,16 @@ class LoaderController extends Controller {
             $order->setCreationDate($date);
 
             $em->persist($order);
-            $em->flush();
 
             foreach ($orderLines['lines'] as $orderLine) {
                 $orderLine->setSalesOrder($order);
-                $this->saveAndDetach($em, $orderLine);
+                $em->persist($orderLine);
             }
-
-            $em->detach($order);
+            
+            if (($index % $batchSize) == 0) {
+                $em->flush();
+                $em->clear(); // Detaches all objects from Doctrine!
+            }
         }
     }
 

@@ -107,6 +107,21 @@ class ReportController extends Controller {
             'misc_params' => $misc_params, 
             'params' => $params);
     }
+    
+    private function getDateRange($params) {
+        
+        $em = $this->getDoctrine()->getManager();
+        $dql = 'SELECT MIN(sol.creationDate) AS minDate, 
+            MAX(sol.creationDate) AS maxDate 
+            FROM ChallengeReportBundle:SalesOrderLine sol';
+        $query = $em->createQuery($dql);
+        $results = $query->getScalarResult()[0];
+        
+        return array(
+            'minDate' => strtotime($results['minDate']), 
+            'maxDate' => strtotime($results['maxDate'])
+        );
+    }
 
     /**
      * @Route("/", name="report")
@@ -118,6 +133,7 @@ class ReportController extends Controller {
         
         $options['params']['action'] = 'report';
         $options['params']['dataAction'] = 'reportData';
+        $options['params']['dates'] = $this->getDateRange($options['params']);
         
         return array(
             'search_params' => $options['search_params'], 
