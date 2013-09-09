@@ -9,8 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class DefaultController extends Controller {
-
+class ReportController extends Controller {
+    
     private function getParam($params, $name, $default = null) {
 
         if (array_key_exists($name, $params)) {
@@ -77,13 +77,9 @@ class DefaultController extends Controller {
             $queryBuilder->orderBy($sort, $direction);
         }
     }
-
-    /**
-     * @Route("/reportTest", name="reportTest")
-     * @Template()
-     */
-    public function reportTestAction(Request $request) {
-
+    
+    private function readParams(Request $request) {
+        
         $search_params = array();
         $search_params['country'] = $request->query->get('country');
         $search_params['product'] = $request->query->get('product');
@@ -91,8 +87,8 @@ class DefaultController extends Controller {
         $search_params['endDate'] = $request->query->get('endDate');
         
         $sort_params = array();
-        $sort_params['sort'] = $request->query->get('sort', 'productId');
-        $sort_params['direction'] = $request->query->get('direction', 'asc');
+        $sort_params['sort'] = $request->query->get('sidx', 'productId');
+        $sort_params['direction'] = $request->query->get('sord', 'asc');
                 
         $pager_params = array();
         $pager_params['page'] = $request->query->get('page', 1);
@@ -103,15 +99,51 @@ class DefaultController extends Controller {
         $misc_params['jsformat'] = 'yyyy-mm-dd';
         
         $params = array_merge($search_params, $sort_params, $pager_params, $misc_params);
-        $params['action'] = 'reportTest';
+        
+        return array(
+            'search_params' => $search_params, 
+            'sort_params' => $sort_params, 
+            'pager_params' => $pager_params, 
+            'misc_params' => $misc_params, 
+            'params' => $params);
+    }
+
+    /**
+     * @Route("/report", name="report")
+     * @Template()
+     */
+    public function reportAction(Request $request) {
+
+        $options = $this->readParams($request);
+        
+        $options['params']['action'] = 'report';
+        $options['params']['dataAction'] = 'reportData';
+        
+        return array(
+            'search_params' => $options['search_params'], 
+            'sort_params' => $options['sort_params'], 
+            'pager_params' => $options['pager_params'], 
+            'misc_params' => $options['misc_params'], 
+            'params' => $options['params']);
+    }
+
+    /**
+     * @Route("/reportData", name="reportData")
+     * @Template()
+     */
+    public function reportDataAction(Request $request) {
+
+        $options = $this->readParams($request);
+        $params = $options['params'];
         
         $queryBuilder = $this->buildQueryConditions($params);
 
         $queryBuilder->select('COUNT (DISTINCT p.productId)');
         $count = $queryBuilder->getQuery()->getSingleScalarResult();
 
+        $params['offset'] = abs($params['page'] - 1) * $params['chunk'];
         $params['totalItems'] = $count;
-        $params['totalPages'] = $count / $pager_params['chunk'];
+        $params['totalPages'] = round($count / $params['chunk']);
 
         $queryBuilder->select('p.productId AS productId, 
             p.product AS product, 
@@ -119,17 +151,19 @@ class DefaultController extends Controller {
             SUM(sol.totalCost) AS totalCost,
             SUM(sol.totalPrice) AS totalRevenue,
             SUM(sol.totalProfit) AS totalProfit')
-                ->groupBy('sol.product');
+                ->groupBy('sol.product')
+                ->setFirstResult($params['offset'])
+                ->setMaxResults($params['chunk']);
         $this->prepareOrderBy($queryBuilder, $params);
 
         $results = $queryBuilder->getQuery()->execute();
 
-        return array('results' => $results, 
-            'search_params' => $search_params, 
-            'sort_params' => $sort_params, 
-            'pager_params' => $pager_params, 
-            'misc_params' => $misc_params, 
-            'params' => $params);
+        $data = array('total' => $params['totalPages'], 
+            'page' => $params['page'], 
+            'records' => count($results), 
+            'rows' => $results);
+                
+        return new JsonResponse($data);
     }
 
 }
