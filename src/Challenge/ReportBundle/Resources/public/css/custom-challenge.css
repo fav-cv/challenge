@@ -1,0 +1,12 @@
+
+/* jqgrid inputs fixing - twitter bootstrap interaction */
+input.ui-pg-input,
+select.ui-pg-selbox {
+    width: auto;
+}
+input.ui-pg-input {
+    padding: 3px;
+}
+select.ui-pg-selbox {            
+    padding: 0;
+}

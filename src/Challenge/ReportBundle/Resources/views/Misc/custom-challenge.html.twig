@@ -1,0 +1,53 @@
+<script type="text/javascript">
+    jQuery(function($) {
+
+        // Date picker initialization
+        $('#datepicker').datepicker({
+            format: '{{ params.jsformat }}',
+            startDate: new Date({{ params.dates.minDate }} * 1000),
+            endDate: new Date({{ params.dates.maxDate }} * 1000)
+        });
+
+
+        var $chunk = $("form[name=filtersForm] input[name=rows]");
+        var $sort = $("form[name=filtersForm] input[name=sidx]");
+        var $direction = $("form[name=filtersForm] input[name=sord]");
+        
+        // jqGrid
+        $("#list").jqGrid({
+            url: "{{ path(params.dataAction) }}",
+            postData: {{ search_params|json_encode()|raw }},
+            datatype: "json",
+            mtype: "GET",
+            colNames: ["Id", "Product", "Units Sold", "Total Cost", "Total Revenue", "Total Profit"],
+            colModel: [
+                {name: "productId", hidden: true},
+                {name: "product"},
+                {name: "unitsSold", align: 'right', formatter: 'integer'},
+                {name: "totalCost", align: 'right', formatter: 'currency'},
+                {name: "totalRevenue", align: 'right', formatter: 'currency'},
+                {name: "totalProfit", align: 'right', formatter: 'currency'}
+            ],
+            emptyrecords: "No records to view",
+            pager: "#pager",
+            rowNum: {{ params.chunk }},
+            rowList: [5, 10, 20, 30],
+            sortname: "{{ params.sort }}",
+            sortorder: "{{ params.direction }}",
+            viewrecords: true,
+            gridview: true,
+            autoencode: true,
+            caption: "Data",
+            height: "100%",
+            // Save parameters in filters also
+            loadComplete: function(data) {
+                $chunk.val(data.chunk);
+                $sort.val(data.sort);
+                $direction.val(data.direction);
+            }, 
+            // search cell value by name
+            repeatitems: false
+        });
+    });
+
+    </script>

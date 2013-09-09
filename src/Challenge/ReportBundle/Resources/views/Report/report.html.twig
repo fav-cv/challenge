@@ -1,118 +1,80 @@
 {% extends "ChallengeReportBundle::sidebar.html.twig" %}
 
-
-{% block title %}
-Report
-{% endblock %}
+{# Page title #}
+{% block title %}Report{% endblock %}
 
 
-{% block sidebar %}
-<h1>Filters</h1>
-{# <div class="datepicker"></div> #}
-<form method="GET">
-    
-    <input type="hidden" name="rows" value="{{ params.chunk }}"/>
-    {{ render(controller('ChallengeReportBundle:Country:countryList', {
-        'params': params
-    })) }}
-    
-    <input type="text" name="product" placeholder="Product" value="{{ params.product }}"/>
-    
-    <div class="input-daterange input-append input-prepend" id="datepicker">
-        <input type="text" class="input-small" 
-               name="startDate" value="{{ params.startDate }}" 
-               placeholder="Start date"/>
-        <span class="add-on">to</span>
-        <input type="text" class="input-small" 
-               name="endDate" value="{{ params.endDate }}" 
-               placeholder="End date"/>
-    </div>
-    
-    <a href="{{ path(params.action) }}">Clear</a>
-    <input type="submit" class="btn" value="Search"/>
-</form>
-
-{% endblock %}
-
-
-{% block stylesheets %}
-
-<!-- Fix jqueryui+assetic image loading problems: 
-    http://stackoverflow.com/questions/9960749/symfony2-cssrewrite-filters-image-paths-are-way-off -->
-{% stylesheets filter='cssrewrite' 
-    'bundles/challengereport/css/*'  %}
-    <link rel="stylesheet" href="{{ asset_url }}" />
-{% endstylesheets %}
-    
-<!-- Fix some inputs on pager jqgrid -->
-<style>
-        input.ui-pg-input,
-        select.ui-pg-selbox {
-            width: auto;
-        }
-        input.ui-pg-input {
-            padding: 3px;
-        }
-        select.ui-pg-selbox {            
-            padding: 0;
-        }
-</style>
-{% endblock %}
-
-
-{% block javascripts %}
-
-{% javascripts '@ChallengeReportBundle/Resources/public/js/*' %}
-    <script type="text/javascript" src="{{ asset_url }}"></script>
-{% endjavascripts %}
-    
-<script type="text/javascript">
-    $('#datepicker').datepicker({
-        format: '{{ params.jsformat }}',
-        startDate: new Date({{ params.dates.minDate }} * 1000), 
-        endDate: new Date({{ params.dates.maxDate }} * 1000) 
-    });
-</script>
-
-<script type="text/javascript">
-$(function () {
-    $("#list").jqGrid({
-        url: "{{ path(params.dataAction) }}",
-        postData: {{ search_params|json_encode()|raw }}, 
-        datatype: "json",
-        mtype: "GET",
-        colNames: ["Id", "Product", "Units Sold", "Total Cost", "Total Revenue", "Total Profit"],
-        colModel: [
-            { name: "productId", hidden: true},
-            { name: "product"},
-            { name: "unitsSold", align: 'right', formatter:'integer' },
-            { name: "totalCost", align: 'right', formatter:'currency' },
-            { name: "totalRevenue", align: 'right', formatter:'currency' },
-            { name: "totalProfit", align: 'right', formatter:'currency' }
-        ],                
-        emptyrecords: "No records to view",
-        pager: "#pager",
-        rowNum: {{ params.chunk }}, 
-        rowList: [5, 10, 20, 30],
-        sortname: "{{ params.sort }}",
-        sortorder: "{{ params.direction }}",
-        viewrecords: true,
-        gridview: true,
-        autoencode: true,
-        caption: "Data",
-        height: "100%",
-        // search cell value by name
-        repeatitems: false
-    }); 
-}); 
-</script>
-
-{% endblock %}
-
+{# Page content #}
 {% block content %}
-
     <h1>Report</h1>
     <table id="list"><tr><td></td></tr></table> 
     <div id="pager"></div>
-
 {% endblock %}
+
+{# Sidebar filters #}
+{# TODO: User symfony form support #}
+{% block sidebar %}
+    <h1>Filters</h1>
+
+    <form method="GET" name="filtersForm">
+
+        <input type="hidden" name="rows" value="{{ params.chunk }}"/>
+        <input type="hidden" name="sidx" value="{{ params.sort }}"/>
+        <input type="hidden" name="sord" value="{{ params.direction }}"/>
+        
+        {{ render(controller('ChallengeReportBundle:Country:countryList', {
+            'params': params
+        })) }}
+
+        <input type="text" name="product" placeholder="Product" value="{{ params.product }}"/>
+
+        <div class="input-daterange input-append input-prepend" id="datepicker">
+            <input type="text" class="input-small" 
+                   name="startDate" value="{{ params.startDate }}" 
+                   placeholder="Start date"/>
+            <span class="add-on">to</span>
+            <input type="text" class="input-small" 
+                   name="endDate" value="{{ params.endDate }}" 
+                   placeholder="End date"/>
+        </div>
+
+        <a href="{{ path(params.action) }}">Clear</a>
+        <input type="submit" class="btn" value="Search"/>
+    </form>
+{% endblock %}
+
+
+
+{# 
+    include used stylesheets using assetic: 
+        * datepicker
+        * jquery-ui
+        * jqgrid
+        * custom
+ #}
+{% block stylesheets %}
+    <!-- Fix jqueryui+assetic image loading problems: 
+        http://stackoverflow.com/questions/9960749/symfony2-cssrewrite-filters-image-paths-are-way-off -->
+    {% stylesheets filter='cssrewrite' 
+        'bundles/challengereport/css/*'  %}
+        <link rel="stylesheet" href="{{ asset_url }}" />
+    {% endstylesheets %}    
+{% endblock %}
+
+
+{# 
+    included javascript: 
+        * datepicker
+        * jquery-ui
+        * jqgrid
+        * custom
+ #}
+{% block javascripts %}
+    {% javascripts '@ChallengeReportBundle/Resources/public/js/*' %}
+        <script type="text/javascript" src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+
+    {% include 'ChallengeReportBundle:Misc:custom-challenge.html.twig' %}
+{% endblock %}
+
+        

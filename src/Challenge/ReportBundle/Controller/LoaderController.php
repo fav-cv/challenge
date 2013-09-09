@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Response;
-
 use Challenge\ReportBundle\Entity\Product;
 use Challenge\ReportBundle\Entity\SalesOrder;
 use Challenge\ReportBundle\Entity\SalesOrderLine;
@@ -14,13 +13,29 @@ use Challenge\ReportBundle\Entity\SalesOrderLine;
 class LoaderController extends Controller {
 
     private function generateProducts($size, $em) {
-        
+
         $batchSize = 50;
-        
+
         for ($index = 0; $index < $size; $index++) {
 
             $product = new Product();
             $product->setProduct("product-$index");
+            $product->setUnitPrice(200 + $index);
+            $product->setUnitCost(110 + $index);
+
+            $em->persist($product);
+            if (($index % $batchSize) == 0) {
+                $em->flush();
+                $em->clear(); // Detaches all objects from Doctrine!
+            }
+        }
+        
+
+        // 10% of products are sold under its cost
+        for ($index = 0; $index < ($size/10); $index++) {
+
+            $product = new Product();
+            $product->setProduct("product-under-cost-$index");
             $product->setUnitPrice(100 + $index);
             $product->setUnitCost(110 + $index);
 
@@ -30,15 +45,18 @@ class LoaderController extends Controller {
                 $em->clear(); // Detaches all objects from Doctrine!
             }
         }
+
+        $em->flush();
+        $em->clear(); // Detaches all objects from Doctrine!
     }
 
     private function getEntity($name, $em) {
 
         $countDql = "SELECT COUNT(e) FROM $name e";
         $max = $em->createQuery($countDql)->getSingleScalarResult();
-        
+
         $i = rand(0, ($max - 1));
-        
+
         // Should use an order by
         $dql = "SELECT e FROM $name e";
         $query = $em->createQuery($dql)
@@ -50,15 +68,15 @@ class LoaderController extends Controller {
     }
 
     private function generateOrders($size, $em) {
-        
+
         $batchSize = 20;
-        
+
         for ($index = 0; $index < $size; $index++) {
 
             $date = new \DateTime();
             $i = rand(0, 30);
-            $date->modify("-$i day");            
-            
+            $date->modify("-$i day");
+
             $order = new SalesOrder();
             $n = rand(1, 5);
 
@@ -75,12 +93,15 @@ class LoaderController extends Controller {
                 $orderLine->setSalesOrder($order);
                 $em->persist($orderLine);
             }
-            
+
             if (($index % $batchSize) == 0) {
                 $em->flush();
                 $em->clear(); // Detaches all objects from Doctrine!
             }
         }
+
+        $em->flush();
+        $em->clear(); // Detaches all objects from Doctrine!
     }
 
     private function getOrderLines($size, $em, $date) {
@@ -118,12 +139,12 @@ class LoaderController extends Controller {
      * @Template()
      */
     public function loadAction() {
-        
+
         ini_set('max_execution_time', 300);
         $em = $this->getDoctrine()->getManager();
-                
-        $this->generateProducts(200, $em);                
-        $this->generateOrders(500, $em);
+
+        $this->generateProducts(200, $em);
+        $this->generateOrders(2000, $em);
 
         $response = new Response();
         $response->setContent('ok!');
@@ -131,17 +152,17 @@ class LoaderController extends Controller {
 
         return $response;
     }
-    
+
     /**
      * @Route("/load/products/{size}")
      * @Template()
      */
     public function loadProductsAction($size = 200) {
-        
+
         ini_set('max_execution_time', 300);
         $em = $this->getDoctrine()->getManager();
-                
-        $this->generateProducts($size, $em);  
+
+        $this->generateProducts($size, $em);
 
         $response = new Response();
         $response->setContent("ok, $size products loaded !");
@@ -149,16 +170,16 @@ class LoaderController extends Controller {
 
         return $response;
     }
-    
+
     /**
      * @Route("/load/orders/{size}")
      * @Template()
      */
-    public function loadOrdersAction($size = 200) {
-        
+    public function loadOrdersAction($size = 2000) {
+
         ini_set('max_execution_time', 300);
         $em = $this->getDoctrine()->getManager();
-                           
+
         $this->generateOrders($size, $em);
 
         $response = new Response();

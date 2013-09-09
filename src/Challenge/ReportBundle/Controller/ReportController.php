@@ -176,6 +176,9 @@ class ReportController extends Controller {
 
         $data = array('total' => $params['totalPages'], 
             'page' => $params['page'], 
+            'chunk' => $params['chunk'], 
+            'sort' => $params['sort'], 
+            'direction' => $params['direction'], 
             'records' => count($results), 
             'rows' => $results);
                 
