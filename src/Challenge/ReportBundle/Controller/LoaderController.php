@@ -26,8 +26,8 @@ class LoaderController extends Controller {
 
             $product = new Product();
             $product->setProduct("product-$index");
-            $product->setUnitPrice(200 + $index);
-            $product->setUnitCost(100 + $index);
+            $product->setUnitPrice(100 + $index);
+            $product->setUnitCost(110 + $index);
 
             $this->saveAndDetach($em, $product);
         }
@@ -35,28 +35,38 @@ class LoaderController extends Controller {
 
     private function getEntity($name, $em) {
 
-        $max = 50;
-        $dql = "SELECT e FROM $name e";
-        $query = $em->createQuery($dql)->setMaxResults($max);
-
+        $countDql = "SELECT COUNT(e) FROM $name e";
+        $max = $em->createQuery($countDql)->getSingleScalarResult();
+        
         $i = rand(0, ($max - 1));
-
+        
+        // Should use an order by
+        $dql = "SELECT e FROM $name e";
+        $query = $em->createQuery($dql)
+                ->setFirstResult($i)
+                ->setMaxResults(1);
         $results = $query->execute();
 
-        return $results[$i];
+        return $results[0];
     }
 
     private function generateOrders($size, $em) {
+        
         for ($index = 0; $index < $size; $index++) {
 
+            $date = new \DateTime();
+            $i = rand(0, 30);
+            $date->modify("-$i day");            
+            
             $order = new SalesOrder();
             $n = rand(1, 5);
 
-            $orderLines = $this->getOrderLines($n, $em);
+            $orderLines = $this->getOrderLines($n, $em, $date);
 
             $order->setCountry($this->getEntity("ChallengeReportBundle:Country", $em));
             $order->setUsername("username-$index");
             $order->setTotalPrice($orderLines['totalPrice']);
+            $order->setCreationDate($date);
 
             $em->persist($order);
             $em->flush();
@@ -70,7 +80,7 @@ class LoaderController extends Controller {
         }
     }
 
-    private function getOrderLines($size, $em) {
+    private function getOrderLines($size, $em, $date) {
 
         $totalPriceOrder = 0.0;
         $lines = array();
@@ -92,6 +102,7 @@ class LoaderController extends Controller {
             $orderLine->setTotalProfit($totalProfit);
             $orderLine->setUnitPrice($product->getUnitPrice());
             $orderLine->setUnitCost($product->getUnitCost());
+            $orderLine->setCreationDate($date);
 
             $lines[] = $orderLine;
         }
@@ -104,13 +115,51 @@ class LoaderController extends Controller {
      * @Template()
      */
     public function loadAction() {
+        
         ini_set('max_execution_time', 300);
         $em = $this->getDoctrine()->getManager();
-        $this->generateProducts(2000, $em);
-        $this->generateOrders(5000, $em);
+                
+        $this->generateProducts(200, $em);                
+        $this->generateOrders(500, $em);
 
         $response = new Response();
         $response->setContent('ok!');
+        $response->headers->set('Content-Type', 'text/plain');
+
+        return $response;
+    }
+    
+    /**
+     * @Route("/load/products/{size}")
+     * @Template()
+     */
+    public function loadProductsAction($size = 200) {
+        
+        ini_set('max_execution_time', 300);
+        $em = $this->getDoctrine()->getManager();
+                
+        $this->generateProducts($size, $em);  
+
+        $response = new Response();
+        $response->setContent("ok, $size products loaded !");
+        $response->headers->set('Content-Type', 'text/plain');
+
+        return $response;
+    }
+    
+    /**
+     * @Route("/load/orders/{size}")
+     * @Template()
+     */
+    public function loadOrdersAction($size = 200) {
+        
+        ini_set('max_execution_time', 300);
+        $em = $this->getDoctrine()->getManager();
+                           
+        $this->generateOrders($size, $em);
+
+        $response = new Response();
+        $response->setContent("ok, $size orders loaded !");
         $response->headers->set('Content-Type', 'text/plain');
 
         return $response;
