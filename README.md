@@ -12,4 +12,4 @@ Testing the app
 * php app/console cache:clear --env=prod --no-debug
 * php app/console assetic:dump --env=prod --no-debug
 
-4.- Browse to http://localhost/app_name/web/ to test the application 
+4.- Browse to http://localhost/challenge/web/ to test the application 
