@@ -81,6 +81,10 @@
         <script type="text/javascript" src="{{ asset_url }}"></script>
     {% endjavascripts %}
 
+    <!-- 
+    This is a runtime dependent javascript template. It initializes all 
+    the dynamic elements in the page, like the grid or the datepicker 
+    -->    
     {% include 'ChallengeReportBundle:Misc:custom-challenge.html.twig' %}
 {% endblock %}
 
