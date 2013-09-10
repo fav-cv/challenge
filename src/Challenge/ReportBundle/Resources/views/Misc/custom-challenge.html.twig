@@ -5,8 +5,8 @@
         // Date picker initialization
         $('#datepicker').datepicker({
             format: '{{ params.jsformat }}',
-            startDate: new Date({{ params.dates.minDate }} * 1000),
-            endDate: new Date({{ params.dates.maxDate }} * 1000)
+            startDate: new Date({{ params.dates.minDate }}),
+            endDate: new Date({{ params.dates.maxDate }})
         });
 
 
@@ -50,5 +50,42 @@
             repeatitems: false
         });
     });
+    
+    // Load test data
+    var tooltipText = function($el, data) {
+        $el.attr('data-original-title', data)
+          .tooltip('fixTitle')
+          .tooltip('show');
+    };
+    
+    var $loader = $("a.data-loader").tooltip({
+        trigger: 'manual', 
+        placement: 'right'
+    });
+    
+    $loader.click(function() {
+        tooltipText($loader, "Loading ....");
+        $.ajax("{{ path('loadProducts') }}", {
+            success: function(data) { 
+                tooltipText($loader, data);
+                $.ajax("{{ path('loadOrders') }}", {
+                    success: function(data) {                    
+                        tooltipText($loader, data);                        
+                    }, 
+                    error: function() {                           
+                        tooltipText($loader, "There were an error loading orders");
+                    }, 
+                    complete: function() {
+                        window.setTimeout(function() { window.location.reload(true) }, 2000);
+                    }
+                });
+            }, 
+            error: function() {                           
+                tooltipText($loader, "There were an error loading products");
+            }
+        });
+        return false;
+    });
+    
 
 </script>

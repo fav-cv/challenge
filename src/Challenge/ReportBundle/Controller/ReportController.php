@@ -2,81 +2,13 @@
 
 namespace Challenge\ReportBundle\Controller;
 
-use DateTime;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class ReportController extends Controller {
-    
-    private function getParam($params, $name, $default = null) {
-
-        if (array_key_exists($name, $params)) {
-            $value = trim($params[$name]);
-            if (!empty($value)) {
-                return $value;
-            }
-        }
-
-        return $default;
-    }
-
-    private function buildQueryConditions($params) {
-
-        $em = $this->getDoctrine()->getManager();
-        $queryBuilder = $em->createQueryBuilder();
-
-        $queryBuilder
-                ->from('ChallengeReportBundle:SalesOrderLine', 'sol')
-                ->innerJoin('sol.product', 'p');
-
-        $country = $this->getParam($params, 'country');
-        if (!empty($country)) {
-            $queryBuilder
-                    ->innerJoin('sol.salesOrder', 'so')
-                    ->innerJoin('so.country', 'c')
-                    ->andWhere('c.code = :country')
-                    ->setParameter('country', $country);
-        }
-
-        $startDate = $this->getParam($params, 'startDate');
-        if (!empty($startDate)) {
-            $start = DateTime::createFromFormat($params['format'], $startDate);
-            $start->setTime(0, 0, 0);
-            $queryBuilder
-                    ->andWhere('sol.creationDate >= :startDate')
-                    ->setParameter('startDate', $start);
-        }
-
-        $endDate = $this->getParam($params, 'endDate');
-        if (!empty($endDate)) {
-            $end = DateTime::createFromFormat($params['format'], $endDate);
-            $end->setTime(23, 59, 59);
-            $queryBuilder
-                    ->andWhere('sol.creationDate <= :endDate')
-                    ->setParameter('endDate', $end);
-        }
-
-        $product = $this->getParam($params, 'product');
-        if (!empty($product)) {
-            $queryBuilder
-                    ->andWhere('p.product LIKE :product')
-                    ->setParameter('product', '%' . $product . '%');
-        }
-
-        return $queryBuilder;
-    }
-
-    private function prepareOrderBy($queryBuilder, $params) {
-
-        $sort = $this->getParam($params, 'sort');
-        $direction = $this->getParam($params, 'direction');
-        if (!empty($sort)) {
-            $queryBuilder->orderBy($sort, $direction);
-        }
-    }
+class ReportController extends Controller {    
     
     private function readParams(Request $request) {
         
@@ -108,32 +40,20 @@ class ReportController extends Controller {
             'params' => $params);
     }
     
-    private function getDateRange($params) {
-        
-        $em = $this->getDoctrine()->getManager();
-        $dql = 'SELECT MIN(sol.creationDate) AS minDate, 
-            MAX(sol.creationDate) AS maxDate 
-            FROM ChallengeReportBundle:SalesOrderLine sol';
-        $query = $em->createQuery($dql);
-        $results = $query->getScalarResult()[0];
-        
-        return array(
-            'minDate' => strtotime($results['minDate']), 
-            'maxDate' => strtotime($results['maxDate'])
-        );
-    }
-
     /**
      * @Route("/", name="report")
      * @Template()
      */
     public function reportAction(Request $request) {
 
+        $reportService = $this->get('report_service');
         $options = $this->readParams($request);
+        
+        $dates = $reportService->getOrdersDateRange();
         
         $options['params']['action'] = 'report';
         $options['params']['dataAction'] = 'reportData';
-        $options['params']['dates'] = $this->getDateRange($options['params']);
+        $options['params']['dates'] = $dates;
         
         return array(
             'search_params' => $options['search_params'], 
@@ -149,38 +69,28 @@ class ReportController extends Controller {
      */
     public function reportDataAction(Request $request) {
 
+        $reportService = $this->get('report_service');
+    
         $options = $this->readParams($request);
         $params = $options['params'];
         
-        $queryBuilder = $this->buildQueryConditions($params);
-
-        $queryBuilder->select('COUNT (DISTINCT p.productId)');
-        $count = $queryBuilder->getQuery()->getSingleScalarResult();
-
         $params['offset'] = abs($params['page'] - 1) * $params['chunk'];
-        $params['totalItems'] = $count;
-        $params['totalPages'] = round($count / $params['chunk']);
+        
+        $search = $reportService->doSearch($params);
+        
+        $totalItems = $search['totalItems'];
+        $list = $search['list'];
 
-        $queryBuilder->select('p.productId AS productId, 
-            p.product AS product, 
-            SUM(sol.quantity) AS unitsSold,  
-            SUM(sol.totalCost) AS totalCost,
-            SUM(sol.totalPrice) AS totalRevenue,
-            SUM(sol.totalProfit) AS totalProfit')
-                ->groupBy('sol.product')
-                ->setFirstResult($params['offset'])
-                ->setMaxResults($params['chunk']);
-        $this->prepareOrderBy($queryBuilder, $params);
-
-        $results = $queryBuilder->getQuery()->execute();
+        $params['totalItems'] = $totalItems;
+        $params['totalPages'] = round($totalItems / $params['chunk']);
 
         $data = array('total' => $params['totalPages'], 
             'page' => $params['page'], 
             'chunk' => $params['chunk'], 
             'sort' => $params['sort'], 
             'direction' => $params['direction'], 
-            'records' => count($results), 
-            'rows' => $results);
+            'records' => count($list), 
+            'rows' => $list);
                 
         return new JsonResponse($data);
     }

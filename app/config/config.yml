@@ -71,3 +71,11 @@ swiftmailer:
 bc_bootstrap:
     less_filter: lessphp
     
+services:
+    loader_service:
+        class: "Challenge\ReportBundle\Service\TesterService"
+        arguments: [ "@doctrine.orm.entity_manager" ]
+    report_service:
+        class: "Challenge\ReportBundle\Service\ReportService"
+        arguments: [ "@doctrine.orm.entity_manager" ]
+    
