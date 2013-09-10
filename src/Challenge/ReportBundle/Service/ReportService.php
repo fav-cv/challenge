@@ -2,6 +2,8 @@
 
 namespace Challenge\ReportBundle\Service;
 
+use DateTime;
+
 use Doctrine\ORM\EntityManager;
 
 /**
