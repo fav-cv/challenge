@@ -17,5 +17,12 @@ php app/console assetic:dump --env=prod --no-debug
 
 4.- Browse to http://localhost/challenge/web/ to test the application 
 
+TODO
+----
+
+- [ ] Make the range datepicker inline displayed
+- [ ] Use the jqgrid search support
+- [ ] Create the appropriate unit/functional tests for the application
+
 
 [1]: http://getcomposer.org/download/        "composer"
