@@ -7,7 +7,7 @@ Testing the app
 * <strong>challenge_init_data.sql</strong>: Initializes an empty database, it just has information about the countries list
 * <strong>challenge_big_data.sql</strong>: Use this script to test the application using * an already populated database (5500 products and 15000 orders)
 
-3.- Copy the app into your webserver and follow the normal symfony installation process, use the following commands from the app base directory (you will need [composer] [1] installed):
+3.- Copy the app into your webserver and follow the normal symfony installation process, use the following commands from the app base directory (you will need to have [composer] [1] installed):
 
 ```
 composer install --optimize-autoloader
